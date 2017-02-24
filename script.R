@@ -11,7 +11,7 @@ exchangerate <- function(Currency, Date) {
     query <- paste("insert into ExchangeRate values ('", Currency, "','", Date, "',", table1, ")", sep = "")
     dataSQLQuery <- sqlQuery(cn, query)
 }
-cn <- odbcDriverConnect(connection = "Driver={SQL Server Native Client 11.0};server=cirsql-01;database=FerreroPricing;trusted_connection=yes;")
+cn <- odbcDriverConnect(connection = "Driver={SQL Server Native Client 11.0};server=(local);database=ExchangeRate;trusted_connection=yes;")
 dataSQLQuery <- sqlQuery(cn, "TRUNCATE TABLE ExchangeRate")
 Date <- as.Date("2016-10-01") # Set Start Date here
 while (Date != Sys.Date()) {
