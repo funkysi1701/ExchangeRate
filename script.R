@@ -1,17 +1,17 @@
 exchangerate <- function(Currency, Date) {
-    Date <- Date
-    theurl <- paste("http://www.xe.com/currencytables/?date=", Date, sep = "")
-    theurl <- paste(theurl, "&from=", sep = "")
-    theurl <- paste(theurl, Currency, sep = "")
+    theurl <- paste0("http://www.xe.com/currencytables/?date=", Date, "&from=", Currency)
     file <- read_html(theurl)
     tables <- html_nodes(file, "table")
     table1 <- html_table(tables[1], fill = TRUE, header = T, trim = T)
     table1 <- as.data.frame(table1[1])[, -1]
     table1 <- head(table1[2], 1)
-    query <- paste("insert into ExchangeRate values ('", Currency, "','", Date, "',", table1, ")", sep = "")
+    query <- paste0("insert into ExchangeRate values ('", Currency, "','", Date, "',", table1, ")")
     dataSQLQuery <- sqlQuery(cn, query)
 }
 cn <- odbcDriverConnect(connection = "Driver={SQL Server Native Client 11.0};server=(local);database=ExchangeRate;trusted_connection=yes;")
+library("RODBC")
+install.packages("rvest")
+library("rvest")
 dataSQLQuery <- sqlQuery(cn, "TRUNCATE TABLE ExchangeRate")
 Date <- as.Date("2016-10-01") # Set Start Date here
 while (Date != Sys.Date()) {
