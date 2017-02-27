@@ -1,18 +1,21 @@
 exchangerate <- function(Currency, Date) {
-    Date <- Date
-    theurl <- paste("http://www.xe.com/currencytables/?date=", Date, sep = "")
-    theurl <- paste(theurl, "&from=", sep = "")
-    theurl <- paste(theurl, Currency, sep = "")
+    theurl <- paste0("http://www.xe.com/currencytables/?date=", Date, "&from=", Currency)
     file <- read_html(theurl)
     tables <- html_nodes(file, "table")
     table1 <- html_table(tables[1], fill = TRUE, header = T, trim = T)
-    table1 <- as.data.frame(table1[1])[, -1]
-    table1 <- head(table1[2], 1)
-    query <- paste("insert into ExchangeRate values ('", Currency, "','", Date, "',", table1, ")", sep = "")
-    dataSQLQuery <- sqlQuery(cn, query)
+    table1 <- as.data.frame(table1[1])[1, 3]
+    cnt <- paste0("select count(*) from ExchangeRate where Currency='", Currency, "' and Date='", Date, "'")
+    count <- sqlQuery(cn, cnt)
+    if (count < 1) {
+        query <- paste0("insert into ExchangeRate values ('", Currency, "','", Date, "',", table1, ")")
+        dataSQLQuery <- sqlQuery(cn, query)
+    }
 }
 cn <- odbcDriverConnect(connection = "Driver={SQL Server Native Client 11.0};server=(local);database=ExchangeRate;trusted_connection=yes;")
-dataSQLQuery <- sqlQuery(cn, "TRUNCATE TABLE ExchangeRate")
+install.packages("RODBC")
+library("RODBC")
+install.packages("rvest")
+library("rvest")
 Date <- as.Date("2016-10-01") # Set Start Date here
 while (Date != Sys.Date()) {
     res <- exchangerate("AED", Date) # Manually list all currencies you want 
@@ -28,3 +31,4 @@ while (Date != Sys.Date()) {
     Date <- Date + 1
 }
 View("Finished")
+quit()
